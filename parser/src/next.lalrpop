@@ -1,7 +1,31 @@
 use std::str::FromStr;
+use crate::ast;
 
 grammar;
 
-pub Num: i64 = {
-    <s:r"[0-9]+"> => i64::from_str(s).unwrap(),
+pub Next: ast::Program = {
+    <s:Stmt+> => ast::Program(s)
 };
+
+Stmt: ast::Stmt = {
+    ExprStmt,
+};
+
+ExprStmt: ast::Stmt = {
+    <e:Term> ";" => ast::Stmt::ExprStmt(e),
+};
+
+Term: ast::Expr = {
+    <e:Expr> => e,
+    "(" <t:Term> ")" => t,
+};
+
+Expr: ast::Expr = {
+    Int,
+};
+
+Int: ast::Expr = {
+    int_reg => ast::Expr::Int(i64::from_str(<>).unwrap()),
+};
+
+int_reg = r"[0-9]+";
