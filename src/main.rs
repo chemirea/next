@@ -48,12 +48,13 @@ fn compile(program: &next_parser::ast::Program) {
 
     fpm.initialize();
 
-    let compiler = Compiler {
+    let mut compiler = Compiler {
         context,
         builder,
         fpm,
         module,
         program,
+        env: vec![],
     };
 
     compiler.compile();
