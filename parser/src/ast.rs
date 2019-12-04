@@ -38,6 +38,6 @@ pub enum Type {
 
 #[derive(Debug, PartialEq)]
 pub enum Primitive {
-    Int(i64),
+    Int(u64),
     String(String),
 }

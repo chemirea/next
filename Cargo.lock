@@ -809,6 +809,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 name = "next"
 version = "0.1.0"
 dependencies = [
+ "inkwell 0.1.0 (git+https://github.com/TheDan64/inkwell?branch=llvm7-0)",
  "next_compiler 0.1.0",
  "next_parser 0.1.0",
 ]
@@ -818,6 +819,7 @@ name = "next_compiler"
 version = "0.1.0"
 dependencies = [
  "inkwell 0.1.0 (git+https://github.com/TheDan64/inkwell?branch=llvm7-0)",
+ "next_parser 0.1.0",
 ]
 
 [[package]]

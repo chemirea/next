@@ -82,7 +82,7 @@ Primitive: ast::Expr = {
 }
 
 Int: ast::Primitive = {
-    Num => ast::Primitive::Int(i64::from_str(<>).unwrap()),
+    Num => ast::Primitive::Int(u64::from_str(<>).unwrap()),
 };
 
 String: ast::Primitive = {

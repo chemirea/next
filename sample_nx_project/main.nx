@@ -1,12 +1,1 @@
-fn main() {
-    let hello = "hello_world";
-    let x = 12234;
-    
-    fn main() {
-        let hello = "hello_world";
-        let x = 12234;
-        return hello;
-    }
-
-    return hello;
-}
+114514;
