@@ -1,7 +1,6 @@
 #[derive(Debug, PartialEq)]
 pub struct Program(pub Vec<Stmt>);
 
-#[allow(dead_code)]
 #[derive(Debug, PartialEq)]
 pub enum Stmt {
     ExprStmt(Expr),
@@ -18,24 +17,27 @@ pub enum Stmt {
     BlockStmt(Vec<Stmt>),
 }
 
-#[allow(dead_code)]
 #[derive(Debug, PartialEq)]
 pub enum Expr {
-    Int(i64),
+    Primitive(Primitive),
     Variable(Ident),
 }
 
-#[allow(dead_code)]
 #[derive(Debug, PartialEq)]
 pub struct Ident {
     pub name: String,
     pub type_: Type,
 }
 
-#[allow(dead_code)]
 #[derive(Debug, PartialEq)]
 pub enum Type {
-    Int,
+    Primitive,
     UserDefine(String),
     Inference,
+}
+
+#[derive(Debug, PartialEq)]
+pub enum Primitive {
+    Int(i64),
+    String(String),
 }

@@ -15,6 +15,7 @@ mod tests {
     use lalrpop_util::lalrpop_mod;
     lalrpop_mod!(pub next);
 
+    #[cfg(not(test))]
     use crate::ast;
 
     #[test]
@@ -54,5 +55,12 @@ mod tests {
 
         let result = next::NextParser::new().parse("fn add (x){ let i = 1  ; return;}");
         assert!(result.is_err());
+    }
+
+    #[test]
+    fn string_literal() {
+        let result =
+            next::NextParser::new().parse(r#"fn hello_world() { return "hello world!"; }"#);
+        assert!(result.is_ok());
     }
 }

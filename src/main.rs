@@ -8,7 +8,7 @@ fn main() {
     let filename = if args.len() >= 2 {
         &args[1]
     } else {
-        "sample_project/main.nx"
+        "sample_nx_project/main.nx"
     };
 
     let mut f = File::open(filename).expect(&format!("{} file not found", filename));

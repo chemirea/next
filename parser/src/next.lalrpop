@@ -72,12 +72,21 @@ Term: ast::Expr = {
 };
 
 Expr: ast::Expr = {
-    Int,
+    Primitive,
     Variable,
 };
 
-Int: ast::Expr = {
-    Num => ast::Expr::Int(i64::from_str(<>).unwrap()),
+Primitive: ast::Expr = {
+    Int => ast::Expr::Primitive(<>),
+    String => ast::Expr::Primitive(<>),
+}
+
+Int: ast::Primitive = {
+    Num => ast::Primitive::Int(i64::from_str(<>).unwrap()),
+};
+
+String: ast::Primitive = {
+    StringLiteral => ast::Primitive::String(<>),
 };
 
 Variable: ast::Expr = {
@@ -100,7 +109,8 @@ Ident: ast::Ident = {
 }
 
 Type: ast::Type = {
-    "Int" => ast::Type::Int,
+    "Int" => ast::Type::Primitive,
+    "String" => ast::Type::Primitive,
 }
 
 
@@ -112,6 +122,8 @@ Num = r"[0-9]+";
 
 /// 小文字から始まる
 Name: String = <r"[a-z_]\w*"> => <>.to_string();
+
+StringLiteral: String = <s:r#""[^"]*""#> => s[1..s.len()-1].to_string();
 
 // ----------------------------------------
 // ---------------- Macro -----------------
