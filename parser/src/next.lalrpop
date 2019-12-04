@@ -3,17 +3,68 @@ use crate::ast;
 
 grammar;
 
+// ----------------------------------------
+// ------------ Program Parser ------------
+// ----------------------------------------
+
 pub Next: ast::Program = {
-    <s:Stmt+> => ast::Program(s)
+    Stmts => ast::Program(<>)
 };
+
+// ----------------------------------------
+// ----------- Statement Parser -----------
+// ----------------------------------------
 
 Stmt: ast::Stmt = {
     ExprStmt,
+    LetStmt,
+    RetStmt,
+    FnStmt,
 };
 
 ExprStmt: ast::Stmt = {
     <e:Term> ";" => ast::Stmt::ExprStmt(e),
 };
+
+LetStmt: ast::Stmt = {
+    "let" <ident:Ident> "=" <expr:Term> ";"
+        => ast::Stmt::LetStmt{ ident, expr },
+}
+
+RetStmt: ast::Stmt = {
+    "return" <e:Term> ";"
+        => ast::Stmt::RetStmt(e),
+};
+
+FnStmt: ast::Stmt = {
+    // 戻り値の型を推論
+    // Omit the return value type
+    "fn" <name:Name> "(" <args:Comma<Ident>> ")" "{" <body:Stmts> "}"
+        => ast::Stmt::FnStmt{
+            ident: ast::Ident{
+                name,
+                type_: ast::Type::Inference
+            },
+            args,
+            body,
+        },
+
+    // 戻り値の型を書く場合
+    // Write the return value type
+    "fn" <name:Name> "(" <args:Comma<Ident>> ")" "->" <type_:Type> "{" <body:Stmts> "}"
+        => ast::Stmt::FnStmt{
+            ident: ast::Ident{
+                name,
+                type_,
+            },
+            args,
+            body,
+        },
+}
+
+// ----------------------------------------
+// ------------- Expr Parser --------------
+// ----------------------------------------
 
 Term: ast::Expr = {
     <e:Expr> => e,
@@ -22,10 +73,59 @@ Term: ast::Expr = {
 
 Expr: ast::Expr = {
     Int,
+    Variable,
 };
 
 Int: ast::Expr = {
-    int_reg => ast::Expr::Int(i64::from_str(<>).unwrap()),
+    Num => ast::Expr::Int(i64::from_str(<>).unwrap()),
 };
 
-int_reg = r"[0-9]+";
+Variable: ast::Expr = {
+    Ident => ast::Expr::Variable(<>)
+}
+
+// ----------------------------------------
+// ---------------- Token -----------------
+// ----------------------------------------
+
+Ident: ast::Ident = {
+    // 型推論
+    // Type inference
+    <name:Name>
+        => ast::Ident{ name, type_: ast::Type::Inference },
+    // 型冗長
+    // Type Redundant
+    <name:Name> ":" <type_:Type>
+        => ast::Ident{ name, type_ }
+}
+
+Type: ast::Type = {
+    "Int" => ast::Type::Int,
+}
+
+
+// ----------------------------------------
+// ---------------- Regex -----------------
+// ----------------------------------------
+
+Num = r"[0-9]+";
+
+/// 小文字から始まる
+Name: String = <r"[a-z_]\w*"> => <>.to_string();
+
+// ----------------------------------------
+// ---------------- Macro -----------------
+// ----------------------------------------
+
+Stmts = <Stmt+>;
+
+Comma<T>: Vec<T> = {
+    <v:(<T> ",")*> <e:T?> => match e {
+        None => v,
+        Some(e) => {
+            let mut v = v;
+            v.push(e);
+            v
+        }
+    }
+};

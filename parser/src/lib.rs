@@ -3,13 +3,11 @@ mod ast;
 use lalrpop_util::lalrpop_mod;
 lalrpop_mod!(next);
 
-pub fn parse() {
-    let result = next::NextParser::new().parse("114514;(23);0;");
-
-    match result {
-        Ok(v) => println!("Result => {:?}", v),
-        Err(e) => println!("{:?}", e),
-    }
+pub fn parse<'inp>(
+    input: &'inp str,
+) -> Result<ast::Program, lalrpop_util::ParseError<usize, next::Token<'inp>, &'static str>> {
+    let parser = next::NextParser::new();
+    parser.parse(input)
 }
 
 #[cfg(test)]
@@ -19,50 +17,42 @@ mod tests {
 
     use crate::ast;
 
-    macro_rules! int {
-        ($e:expr) => {
-            ast::Expr::Int($e)
-        };
-    }
+    #[test]
+    fn let_stmt_ok() {
+        let result = next::NextParser::new().parse("let i = 114514;");
+        assert!(result.is_ok());
 
-    macro_rules! expr_stmt {
-        ($e:expr) => {
-            ast::Stmt::ExprStmt($e)
-        };
-    }
+        let result = next::NextParser::new().parse("let ident = ident2;");
+        assert!(result.is_ok());
 
-    macro_rules! program {
-        ( $( $e:expr ),*) => {
-            {
-                let mut tmp = vec![];
-                $(
-                    tmp.push($e);
-                )*
-                ast::Program(tmp)
-            }
-        };
-    }
-
-    macro_rules! eint {
-        ($e:expr) => {
-            expr_stmt!(int!($e))
-        };
+        let result = next::NextParser::new().parse("let ident = Ident2;");
+        assert!(result.is_err());
     }
 
     #[test]
-    fn exists_next_parser() {
-        assert!(next::NextParser::new().parse("114514;").is_ok());
-        assert_eq!(
-            next::NextParser::new().parse("114514;").unwrap(),
-            program![expr_stmt!(int!(114514))]
-        );
+    fn let_stmt_err() {
+        let result = next::NextParser::new().parse("let ident = Ident2;");
+        assert!(result.is_err());
+
+        let result = next::NextParser::new().parse("let ident = 1dent2;");
+        assert!(result.is_err());
     }
 
     #[test]
-    fn multi_expr_stmts() {
-        assert_eq!(
-            next::NextParser::new().parse("114514;(23);0;").unwrap(),
-            program![eint!(114514), eint!(23), eint!(0)]
-        );
+    fn fn_stmt_ok() {
+        let result = next::NextParser::new().parse("fn id(x) { return x; }");
+        assert!(result.is_ok());
+
+        let result = next::NextParser::new().parse("fn add (x){ let i = 1  ; return i;}");
+        assert!(result.is_ok());
+    }
+
+    #[test]
+    fn fn_stmt_err() {
+        let result = next::NextParser::new().parse("fnid(x) { return x; }");
+        assert!(result.is_err());
+
+        let result = next::NextParser::new().parse("fn add (x){ let i = 1  ; return;}");
+        assert!(result.is_err());
     }
 }

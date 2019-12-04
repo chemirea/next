@@ -1,6 +1,15 @@
-use next_parser::parse;
+use next_parser;
 
 fn main() {
-    println!("Hello, world!");
-    parse();
+    let input = "
+    fn main() {
+        let x = 114514;
+        return x;
+    }
+    ";
+
+    match next_parser::parse(input) {
+        Ok(v) => println!("{:?}", v),
+        Err(e) => println!("{:?}", e),
+    };
 }
